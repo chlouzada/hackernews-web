@@ -29,19 +29,45 @@ const Home: NextPage = () => {
 };
 
 const Comment = ({
-  id,
   created_at,
   author,
   text,
   points,
   children,
-}: Comment) => {
-  return (
-    <section className="flex flex-col justify-center p-6 duration-500 border-2 border-gray-500 rounded shadow-xl motion-safe:hover:scale-105">
-      <h2 className="text-lg text-gray-700">{author}</h2>
-      <HtmlText value={text} />
+  _level = 0,
+}: Comment & { _level?: number }) => {
+  const date = (date: string) => {
+    const d = new Date(date);
+    const formatter = Intl.DateTimeFormat(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
 
+    return formatter.format(d);
+  };
+  const borderColor = () => {
+    const n = _level % 4;
+    if (n === 0) return "border-blue-200";
+    if (n === 1) return "border-green-200";
+    if (n === 2) return "border-yellow-200";
+    if (n === 3) return "border-red-200";
+  };
+  return (
+    <section
+      className={`flex flex-col justify-center pl-3 border-l-2 ${borderColor()}`}
+    >
+      <div>
+        <p>{author}</p>
+        {/* <p>{points}</p> */}
+        <p>{date(created_at)}</p>
+      </div>
+      {/* <HtmlText value={text} /> */}
+      {/* {text && <p className="text-gray-700">{text}</p>} */}
+      {text && <div dangerouslySetInnerHTML={{ __html: text }} />}
       <span>{points}</span>
+      {children.map((child) => (
+        <Comment key={child.id} {...child} _level={_level + 1} />
+      ))}
     </section>
   );
 };
