@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const base_url = "http://hn.algolia.com/api/v1";
 
-interface Story {
+export interface Story {
   id: number;
   created_at: string;
   created_at_i: number;
@@ -12,11 +12,11 @@ interface Story {
   url: string;
   text?: string;
   points?: number;
-  children: Children[];
+  children: Comment[];
   options: unknown[];
 }
 
-interface Children {
+export interface Comment {
   id: number;
   created_at: string;
   created_at_i: number;
@@ -25,7 +25,7 @@ interface Children {
   points?: number;
   parent_id?: number;
   story_id?: number;
-  children: Children[];
+  children: Comment[];
   options: unknown[];
 }
 

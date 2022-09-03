@@ -1,12 +1,8 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import HtmlText from "../components/HtmlText";
+import { Comment } from "../server/router/hn";
 import { trpc } from "../utils/trpc";
-
-type TechnologyCardProps = {
-  name: string;
-  description: string;
-  documentation: string;
-};
 
 const Home: NextPage = () => {
   const story = trpc.useQuery(["hn.story", { id: 32650432 }]);
@@ -24,38 +20,28 @@ const Home: NextPage = () => {
           Create <span className="text-purple-300">T3</span> App
         </h1>
         <p className="text-2xl text-gray-700">This stack uses:</p>
-        <div className="grid gap-3 pt-3 mt-3 text-center md:grid-cols-2 lg:w-2/3">
-          {story.data?.children.map((child) => (
-            <TechnologyCard
-              key={child.id}
-              name="NextJS"
-              description={child.text || ""}
-              documentation="https://nextjs.org/"
-            />
-          ))}
-        </div>
+        {story.data?.children.map((child) => (
+          <Comment key={child.id} {...child} />
+        ))}
       </main>
     </>
   );
 };
 
-const TechnologyCard = ({
-  name,
-  description,
-  documentation,
-}: TechnologyCardProps) => {
+const Comment = ({
+  id,
+  created_at,
+  author,
+  text,
+  points,
+  children,
+}: Comment) => {
   return (
     <section className="flex flex-col justify-center p-6 duration-500 border-2 border-gray-500 rounded shadow-xl motion-safe:hover:scale-105">
-      <h2 className="text-lg text-gray-700">{name}</h2>
-      <p className="text-sm text-gray-600">{description}</p>
-      <a
-        className="mt-3 text-sm underline text-violet-500 decoration-dotted underline-offset-2"
-        href={documentation}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Documentation
-      </a>
+      <h2 className="text-lg text-gray-700">{author}</h2>
+      <HtmlText value={text} />
+
+      <span>{points}</span>
     </section>
   );
 };
