@@ -22,14 +22,14 @@ export interface Comment {
   created_at_i: number;
   author: string;
   text?: string;
-  points?: number;
-  parent_id?: number;
-  story_id?: number;
+  parent_id: number;
+  story_id: number;
   children: Comment[];
   options: unknown[];
 }
 
 const getStory = async (id: number): Promise<Story> => {
+  console.log(`${base_url}/items/${id}`);
   const response = await fetch(`${base_url}/items/${id}`);
   return response.json();
 };

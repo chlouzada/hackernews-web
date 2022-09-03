@@ -5,24 +5,12 @@ import { withTRPC } from "@trpc/next";
 import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import type { AppRouter } from "../server/router";
-import { MantineProvider } from "@mantine/core";
 
 import "../styles/globals.css";
 
-const MyApp: AppType = ({ Component, pageProps }) => {
-  return (
-    <MantineProvider
-      withGlobalStyles
-      withNormalizeCSS
-      theme={{
-        /** Put your mantine theme override here */
-        colorScheme: "light",
-      }}
-    >
-      <Component {...pageProps} />
-    </MantineProvider>
-  );
-};
+const MyApp: AppType = ({ Component, pageProps }) => (
+  <Component {...pageProps} />
+);
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url

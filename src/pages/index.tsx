@@ -1,12 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Comment } from "../server/router/hn";
-import { date } from "../utils/date";
-import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
-  const story = trpc.useQuery(["hn.story", { id: 32650432 }]);
-
   return (
     <>
       <Head>
@@ -20,44 +15,8 @@ const Home: NextPage = () => {
           Create <span className="text-purple-300">T3</span> App
         </h1>
         <p className="text-2xl text-gray-700">This stack uses:</p>
-        {story.data?.children.map((child) => (
-          <Comment key={child.id} {...child} />
-        ))}
       </main>
     </>
-  );
-};
-
-const Comment = ({
-  created_at,
-  author,
-  text,
-  children,
-  _level = 0,
-}: Comment & { _level?: number }) => {
-  const borderColor = () => {
-    const n = _level % 4;
-    if (n === 0) return "border-blue-200";
-    if (n === 1) return "border-green-200";
-    if (n === 2) return "border-yellow-200";
-    if (n === 3) return "border-red-200";
-  };
-  const sortedChildren = children.sort((a, b) => {
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-  });
-  return (
-    <section
-      className={`flex flex-col justify-center pl-3 border-l-2 ${borderColor()}`}
-    >
-      <div>
-        <p>{author}</p>
-        <p>{date(created_at)}</p>
-      </div>
-      {text && <div dangerouslySetInnerHTML={{ __html: text }} />}
-      {sortedChildren.map((child) => (
-        <Comment key={child.id} {...child} _level={_level + 1} />
-      ))}
-    </section>
   );
 };
 
