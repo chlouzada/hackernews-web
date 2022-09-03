@@ -1,9 +1,10 @@
 import { createRouter } from "./context";
 import { z } from "zod";
 
-const base_url = "http://hn.algolia.com/api/v1";
+const algolia_base_url = "http://hn.algolia.com/api/v1";
+const fb_base_url = "https://hacker-news.firebaseio.com/v0";
 
-export interface Story {
+export interface StoryWithContent {
   id: number;
   created_at: string;
   created_at_i: number;
@@ -28,17 +29,46 @@ export interface Comment {
   options: unknown[];
 }
 
-const getStory = async (id: number): Promise<Story> => {
-  console.log(`${base_url}/items/${id}`);
-  const response = await fetch(`${base_url}/items/${id}`);
-  return response.json();
+interface Story {
+  by: string;
+  descendants: number;
+  id: number;
+  kids: number[];
+  score: number;
+  time: number;
+  title: string;
+  type: string;
+  url: string;
+}
+
+const getStoryWithContent = async (id: number) => {
+  const response = await fetch(`${algolia_base_url}/items/${id}`);
+  return response.json() as Promise<StoryWithContent>;
 };
 
-export const hnRouter = createRouter().query("story", {
-  input: z.object({
-    id: z.number(),
-  }),
-  resolve({ input }) {
-    return getStory(input.id);
-  },
-});
+const getStory = async (id: number) => {
+  const response = await fetch(`${fb_base_url}/item/${id}.json`);
+  return response.json() as Promise<Story>;
+};
+
+const topStories = async () => {
+  const response = await fetch(`${fb_base_url}/topstories.json`);
+  const ids = await response.json();
+
+  return (await Promise.all(ids.map(getStory))) as Story[];
+};
+
+export const hnRouter = createRouter()
+  .query("topStories", {
+    resolve() {
+      return topStories();
+    },
+  })
+  .query("story", {
+    input: z.object({
+      id: z.number(),
+    }),
+    resolve({ input }) {
+      return getStoryWithContent(input.id);
+    },
+  });

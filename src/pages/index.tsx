@@ -1,9 +1,13 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
+  const topStories = trpc.useQuery(["hn.topStories"]);
+
   return (
     <>
       <Head>
@@ -18,7 +22,13 @@ const Home: NextPage = () => {
         <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
           Create <span className="text-purple-300">T3</span> App
         </h1>
-        <p className="text-2xl text-gray-700">This stack uses:</p>
+        <ul className="text-2xl text-gray-700">
+          {topStories.data?.map((story) => (
+            <li key={story.id}>
+              <Link href={`/story/${story.id}`}>{story.title}</Link>
+            </li>
+          ))}
+        </ul>
       </main>
 
       <Footer />
