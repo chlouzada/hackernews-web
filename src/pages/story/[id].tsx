@@ -50,9 +50,7 @@ const StoryView = () => {
         <title>{story.data.title}</title>
       </Head>
 
-      <Header />
-
-      {/* <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4"> */}
+      <Header hiddenSearch />
 
       <main className="container mx-auto pt-4 md:pt-12">
         <h1 className="text-3xl leading-normal font-extrabold text-gray-700">

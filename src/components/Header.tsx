@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-export default function Header() {
+export default function Header({ hiddenSearch }: { hiddenSearch?: true }) {
   return (
     <div className="navbar bg-base-100  shadow">
       <div className="flex-1">
@@ -10,13 +10,15 @@ export default function Header() {
         </Link>
       </div>
       <div className="flex-none gap-2">
-        <div className="form-control">
-          <input
-            type="text"
-            placeholder="Search"
-            className="input input-bordered"
-          />
-        </div>
+        {!hiddenSearch && (
+          <div className="form-control">
+            <input
+              type="text"
+              placeholder="Search"
+              className="input input-bordered"
+            />
+          </div>
+        )}
         <div className="dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
             <div className="w-10 rounded-full">
