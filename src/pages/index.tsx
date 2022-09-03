@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import HtmlText from "../components/HtmlText";
 import { Comment } from "../server/router/hn";
+import { date } from "../utils/date";
 import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
@@ -32,19 +32,9 @@ const Comment = ({
   created_at,
   author,
   text,
-  points,
   children,
   _level = 0,
 }: Comment & { _level?: number }) => {
-  const date = (date: string) => {
-    const d = new Date(date);
-    const formatter = Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-
-    return formatter.format(d);
-  };
   const borderColor = () => {
     const n = _level % 4;
     if (n === 0) return "border-blue-200";
@@ -52,20 +42,19 @@ const Comment = ({
     if (n === 2) return "border-yellow-200";
     if (n === 3) return "border-red-200";
   };
+  const sortedChildren = children.sort((a, b) => {
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
   return (
     <section
       className={`flex flex-col justify-center pl-3 border-l-2 ${borderColor()}`}
     >
       <div>
         <p>{author}</p>
-        {/* <p>{points}</p> */}
         <p>{date(created_at)}</p>
       </div>
-      {/* <HtmlText value={text} /> */}
-      {/* {text && <p className="text-gray-700">{text}</p>} */}
       {text && <div dangerouslySetInnerHTML={{ __html: text }} />}
-      <span>{points}</span>
-      {children.map((child) => (
+      {sortedChildren.map((child) => (
         <Comment key={child.id} {...child} _level={_level + 1} />
       ))}
     </section>
