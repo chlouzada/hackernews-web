@@ -1,5 +1,5 @@
+import { GetServerSideProps } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import Header from "../../components/Header";
 import { Comment } from "../../server/router/hn";
 import { date } from "../../utils/date";
@@ -38,8 +38,7 @@ const CommentItem = ({
   );
 };
 
-const StoryView = () => {
-  const { id } = useRouter().query;
+const StoryView = ({ id }: { id: number }) => {
   const story = trpc.useQuery(["hn.story", { id: Number(id) }]);
 
   if (!story.data) return <div>Loading...</div>;
@@ -66,6 +65,22 @@ const StoryView = () => {
       </main>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const id = Number(context.params?.id);
+
+  if (Number.isNaN(id)) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      id,
+    },
+  };
 };
 
 export default StoryView;
