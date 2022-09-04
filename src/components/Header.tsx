@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Header({ hiddenSearch }: { hiddenSearch?: true }) {
   return (
-    <div className="navbar bg-base-100  shadow">
+    <div className="navbar bg-base-100 shadow">
       <div className="flex-1">
         <Link href={"/"}>
           <a className="btn btn-ghost normal-case text-xl">Hacker News</a>

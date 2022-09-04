@@ -6,6 +6,16 @@ import { Comment, StoryWithContent } from "../../server/router/hn";
 import { date } from "../../utils/date";
 import { trpc } from "../../utils/trpc";
 
+const Text = ({ value }: { value?: string }) => {
+  if (!value) return null;
+  return (
+    <div
+      className="w-full text-sm md:leading-relaxed text-gray-700"
+      dangerouslySetInnerHTML={{ __html: value }}
+    />
+  );
+};
+
 const CommentItem = ({
   created_at,
   author,
@@ -13,6 +23,7 @@ const CommentItem = ({
   children,
   _level = -1,
 }: Comment & { _level?: number }) => {
+  if (!text) return null;
   const subCommentsStyle = () => {
     if (_level === -1) return;
     const n = _level % 4;
@@ -26,11 +37,12 @@ const CommentItem = ({
   });
   return (
     <div className={`flex flex-col justify-center ${subCommentsStyle()} pb-3`}>
-      <div>
+      <Text value={text} />
+      <div className="flex justify-between text-sm text-gray-700 pb-1">
         <p>{author}</p>
         <p>{date(created_at)}</p>
       </div>
-      {text && <div dangerouslySetInnerHTML={{ __html: text }} />}
+      <hr className="pb-4" />
       {sortedChildren.map((child) => (
         <CommentItem key={child.id} {...child} _level={_level + 1} />
       ))}
@@ -49,19 +61,15 @@ const StoryItem = ({
   return (
     <section className="flex flex-col gap-3 bg-slate-50 rounded-md p-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-extrabold text-gray-700">{title}</h1>
+        <h1 className="md:text-3xl font-extrabold text-gray-700">{title}</h1>
         <Link href={url}>
-          <a className="py-2 pl-2">{url}</a>
+          <div>
+            <a className="hidden md:block py-2 pl-2">{url}</a>
+            <a className="md:hidden py-2 pl-2">Link</a>
+          </div>
         </Link>
       </div>
-
-      {text && (
-        <div
-          className="leading-relaxed text-justify text-gray-700"
-          dangerouslySetInnerHTML={{ __html: text }}
-        />
-      )}
-
+      <Text value={text} />
       <div className="text-sm font-bold flex justify-between items-center">
         <p>
           {" "}
@@ -89,11 +97,11 @@ const StoryView = ({ id }: { id: number }) => {
       <main className="container mx-auto pt-4 md:pt-8">
         <StoryItem {...story.data} />
 
-        <div className="pt-2">
-          <h2 className="text-xl leading-normal font-extrabold text-gray-700">
+        <div className="">
+          <h2 className="text-xl leading-normal font-extrabold text-gray-700 p-2">
             Comments
           </h2>
-          <div>
+          <div className="shadow rounded-md p-2">
             {story.data.children.map((child) => (
               <CommentItem key={child.id} {...child} />
             ))}
