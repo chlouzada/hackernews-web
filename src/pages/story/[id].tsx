@@ -9,8 +9,8 @@ import { trpc } from "../../utils/trpc";
 const Text = ({ value }: { value?: string }) => {
   if (!value) return null;
   const html = value
-    .replace(/<pre><code>/g, "<p>")
-    .replace(/<\/code><\/pre>/g, "</p>");
+    .replace(/<pre><code>/g, '<div class="mockup-code"><pre><code>')
+    .replace(/<\/code><\/pre>/g, "</code></pre></div>");
   return (
     <div
       className="break-words text-sm md:leading-relaxed text-gray-700"
