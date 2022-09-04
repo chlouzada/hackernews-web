@@ -1,7 +1,8 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import Header from "../../components/Header";
-import { Comment } from "../../server/router/hn";
+import { Comment, StoryWithContent } from "../../server/router/hn";
 import { date } from "../../utils/date";
 import { trpc } from "../../utils/trpc";
 
@@ -10,22 +11,21 @@ const CommentItem = ({
   author,
   text,
   children,
-  _level = 0,
+  _level = -1,
 }: Comment & { _level?: number }) => {
-  const borderColor = () => {
+  const subCommentsStyle = () => {
+    if (_level === -1) return;
     const n = _level % 4;
-    if (n === 0) return "border-blue-200";
-    if (n === 1) return "border-green-200";
-    if (n === 2) return "border-yellow-200";
-    if (n === 3) return "border-red-200";
+    if (n === 0) return "pl-3 border-l-2 border-blue-200";
+    if (n === 1) return "pl-3 border-l-2 border-green-200";
+    if (n === 2) return "pl-3 border-l-2 border-yellow-200";
+    if (n === 3) return "pl-3 border-l-2 border-red-200";
   };
   const sortedChildren = children.sort((a, b) => {
     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
   });
   return (
-    <section
-      className={`flex flex-col justify-center pl-3 border-l-2 ${borderColor()}`}
-    >
+    <div className={`flex flex-col justify-center ${subCommentsStyle()} pb-3`}>
       <div>
         <p>{author}</p>
         <p>{date(created_at)}</p>
@@ -34,12 +34,47 @@ const CommentItem = ({
       {sortedChildren.map((child) => (
         <CommentItem key={child.id} {...child} _level={_level + 1} />
       ))}
+    </div>
+  );
+};
+
+const StoryItem = ({
+  title,
+  url,
+  points,
+  created_at,
+  author,
+  text,
+}: StoryWithContent) => {
+  return (
+    <section className="flex flex-col gap-3 bg-slate-50 rounded-md p-4">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-extrabold text-gray-700">{title}</h1>
+        <Link href={url}>
+          <a className="py-2 pl-2">{url}</a>
+        </Link>
+      </div>
+
+      {text && (
+        <div
+          className="leading-relaxed text-justify text-gray-700"
+          dangerouslySetInnerHTML={{ __html: text }}
+        />
+      )}
+
+      <div className="text-sm font-bold flex justify-between items-center">
+        <p>
+          {" "}
+          by <span>{author}</span> - {points}
+        </p>
+        <p>{date(created_at)}</p>
+      </div>
     </section>
   );
 };
 
 const StoryView = ({ id }: { id: number }) => {
-  const story = trpc.useQuery(["hn.story", { id: Number(id) }]);
+  const story = trpc.useQuery(["hn.story", { id }]);
 
   if (!story.data) return <div>Loading...</div>;
 
@@ -51,16 +86,18 @@ const StoryView = ({ id }: { id: number }) => {
 
       <Header hiddenSearch />
 
-      <main className="container mx-auto pt-4 md:pt-12">
-        <h1 className="text-3xl leading-normal font-extrabold text-gray-700">
-          {id}
-        </h1>
+      <main className="container mx-auto pt-4 md:pt-8">
+        <StoryItem {...story.data} />
 
-        <div>
+        <div className="pt-2">
           <h2 className="text-xl leading-normal font-extrabold text-gray-700">
-            Reports
+            Comments
           </h2>
-          <div></div>
+          <div>
+            {story.data.children.map((child) => (
+              <CommentItem key={child.id} {...child} />
+            ))}
+          </div>
         </div>
       </main>
     </>
