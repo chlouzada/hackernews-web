@@ -1,12 +1,70 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { trpc } from "../utils/trpc";
 
+const Loading = () => {
+  return (
+    <div className="flex justify-center items-center h-96">
+      <div className="progress">Loading</div>
+    </div>
+  );
+};
+
+const Error = () => {
+  return (
+    <div className="flex justify-center items-center h-96">
+      <div className="text-xl text-gray-700">Error</div>
+    </div>
+  );
+};
+
 const Home: NextPage = () => {
-  const topStories = trpc.useQuery(["hn.topStories"]);
+  const [search, setSearch] = useState<string>();
+  const debounced = useDebouncedValue(search, 700);
+
+  const topStoriesQuery = trpc.useQuery(["hn.topStories"]);
+  const searchQuery = trpc.useQuery(["hn.search", { query: debounced! }], {
+    enabled: !!debounced,
+  });
+
+  const renderTopStories = () => {
+    if (topStoriesQuery.isLoading) return <Loading />;
+    if (searchQuery.isError) return <Error />;
+    return topStoriesQuery.data?.map((story) => (
+      <li key={story.id}>
+        <Link href={`/story/${story.id}`}>
+          <div>
+            <h2>{story.title}</h2>
+            <p>{story.time}</p>
+            <span>{story.score}</span>
+            <p> d{story.descendants}</p>
+          </div>
+        </Link>
+      </li>
+    ));
+  };
+
+  const renderSearchResults = () => {
+    if (searchQuery.isLoading) return <Loading />;
+    if (searchQuery.isError) return <Error />;
+    return searchQuery.data?.hits.map((story) => (
+      <li key={story.id}>
+        <Link href={`/story/${story.id}`}>
+          <div>
+            <h2>{story.title}</h2>
+            <p>{story.created_at}</p>
+            <span>{story.points}</span>
+            {/* <p> d{story.descendants}</p> */}
+          </div>
+        </Link>
+      </li>
+    ));
+  };
 
   return (
     <>
@@ -16,25 +74,11 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
+      <Header setSearch={setSearch} search={search} />
 
       <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
-        <h1 className="text-5xl md:text-[5rem] leading-normal font-extrabold text-gray-700">
-          Create <span className="text-purple-300">T3</span> App
-        </h1>
         <ul className="text-2xl text-gray-700">
-          {topStories.data?.map((story) => (
-            <li key={story.id}>
-              <Link href={`/story/${story.id}`}>
-                <div>
-                  <h2>{story.title}</h2>
-                  <p>{story.time}</p>
-                  <span>{story.score}</span>
-                  <p> d{story.descendants}</p>
-                </div>
-              </Link>
-            </li>
-          ))}
+          {debounced ? renderSearchResults() : renderTopStories()}
         </ul>
       </main>
 

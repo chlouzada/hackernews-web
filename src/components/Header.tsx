@@ -1,11 +1,19 @@
 import Link from "next/link";
 import React from "react";
 
-export default function Header({ hiddenSearch }: { hiddenSearch?: true }) {
+export default function Header({
+  hiddenSearch,
+  search,
+  setSearch,
+}: {
+  hiddenSearch?: true;
+  search?: string;
+  setSearch?: (search: string) => void;
+}) {
   return (
     <div className="navbar bg-base-100 shadow">
       <div className="flex-1">
-        <Link href={"/"}>
+        <Link href={"/"} onClick={() => setSearch?.("")}>
           <a className="btn btn-ghost normal-case text-xl">Hacker News</a>
         </Link>
       </div>
@@ -16,6 +24,8 @@ export default function Header({ hiddenSearch }: { hiddenSearch?: true }) {
               type="text"
               placeholder="Search"
               className="input input-bordered"
+              value={search}
+              onChange={(e) => setSearch?.(e.target.value)}
             />
           </div>
         )}
