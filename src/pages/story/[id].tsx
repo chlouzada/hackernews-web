@@ -13,7 +13,7 @@ const Text = ({ value }: { value?: string }) => {
     .replace(/<\/code><\/pre>/g, "</code></pre></div>");
   return (
     <div
-      className="break-words text-sm md:leading-relaxed text-gray-700"
+      className="break-words text-justify text-sm md:leading-relaxed text-gray-700"
       dangerouslySetInnerHTML={{
         __html: html,
       }}
@@ -32,25 +32,28 @@ const CommentItem = ({
   const subCommentsStyle = () => {
     if (_level === -1) return;
     const n = _level % 4;
-    if (n === 0) return "pl-3 border-l-2 border-blue-200";
-    if (n === 1) return "pl-3 border-l-2 border-green-200";
-    if (n === 2) return "pl-3 border-l-2 border-yellow-200";
-    if (n === 3) return "pl-3 border-l-2 border-red-200";
+    if (n === 0) return "pl-3 border-l-[3px] border-blue-400";
+    if (n === 1) return "pl-3 border-l-[3px] border-green-400";
+    if (n === 2) return "pl-3 border-l-[3px] border-yellow-400";
+    if (n === 3) return "pl-3 border-l-[3px] border-red-400";
   };
   const sortedChildren = children.sort((a, b) => {
     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
   });
   return (
-    <div className={`flex flex-col justify-center ${subCommentsStyle()} pb-3`}>
-      <Text value={text} />
-      <div className="flex justify-between text-sm text-gray-700 pb-1">
-        <p>{author}</p>
-        <p>{date(created_at)}</p>
+    <div>
+      <div
+        className={`flex flex-col justify-center mt-2 ${subCommentsStyle()}`}
+      >
+        <Text value={text} />
+        <div className="flex justify-between text-sm text-gray-700">
+          <p>{author}</p>
+          <p>{date(created_at)}</p>
+        </div>
+        {sortedChildren.map((child) => (
+          <CommentItem key={child.id} {...child} _level={_level + 1} />
+        ))}
       </div>
-      <hr className="pb-4" />
-      {sortedChildren.map((child) => (
-        <CommentItem key={child.id} {...child} _level={_level + 1} />
-      ))}
     </div>
   );
 };
