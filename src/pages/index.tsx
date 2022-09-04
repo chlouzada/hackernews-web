@@ -9,8 +9,9 @@ import { trpc } from "../utils/trpc";
 
 const Loading = () => {
   return (
-    <div className="flex justify-center items-center h-96">
-      <div className="progress">Loading</div>
+    <div className="flex justify-center flex-col items-center h-96 gap-3">
+      Loading...
+      <progress className="progress" />
     </div>
   );
 };
