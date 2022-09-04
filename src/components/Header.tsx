@@ -32,7 +32,6 @@ export default function Header({
               type="text"
               placeholder="Search"
               className="input input-bordered"
-              value={search}
               onChange={(e) => setSearch?.(e.target.value)}
             />
           </div>

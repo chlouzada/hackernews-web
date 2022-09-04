@@ -2,7 +2,7 @@ import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Header from "../../components/Header";
-import { Comment, StoryWithContent } from "../../server/router/hn";
+import { Comment, StoryWithContent } from "../../server/router/hn/interfaces";
 import { date } from "../../utils/date";
 import { trpc } from "../../utils/trpc";
 

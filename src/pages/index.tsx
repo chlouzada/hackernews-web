@@ -5,12 +5,13 @@ import { useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { date } from "../utils/date";
 import { trpc } from "../utils/trpc";
 
-const Loading = () => {
+const Loading = ({ search }: { search?: true }) => {
   return (
     <div className="flex justify-center flex-col items-center h-96 gap-3">
-      Loading...
+      {search ? "Searching..." : "Loading..."}
       <progress className="progress" />
     </div>
   );
@@ -51,14 +52,14 @@ const Home: NextPage = () => {
   };
 
   const renderSearchResults = () => {
-    if (searchQuery.isLoading) return <Loading />;
+    if (searchQuery.isLoading) return <Loading search />;
     if (searchQuery.isError) return <Error />;
     return searchQuery.data?.hits.map((story) => (
-      <li key={story.id}>
-        <Link href={`/story/${story.id}`}>
+      <li key={story.objectID}>
+        <Link href={`/story/${story.objectID}`}>
           <div>
             <h2>{story.title}</h2>
-            <p>{story.created_at}</p>
+            <p>{date(story.created_at)}</p>
             <span>{story.points}</span>
             {/* <p> d{story.descendants}</p> */}
           </div>
@@ -75,7 +76,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header setSearch={setSearch} search={search} />
+      <Header setSearch={setSearch} />
 
       <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
         <ul className="text-2xl text-gray-700">

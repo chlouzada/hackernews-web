@@ -1,72 +1,9 @@
-import { createRouter } from "./context";
+import { createRouter } from "../context";
 import { z } from "zod";
+import { SearchResult, Story, StoryWithContent } from "./interfaces";
 
 const algolia_base_url = "http://hn.algolia.com/api/v1";
 const fb_base_url = "https://hacker-news.firebaseio.com/v0";
-
-export interface StoryWithContent {
-  id: number;
-  created_at: string;
-  created_at_i: number;
-  author: string;
-  title: string;
-  url: string;
-  text?: string;
-  points?: number;
-  children: Comment[];
-  options: unknown[];
-}
-
-export interface Comment {
-  id: number;
-  created_at: string;
-  created_at_i: number;
-  author: string;
-  text?: string;
-  parent_id: number;
-  story_id: number;
-  children: Comment[];
-  options: unknown[];
-}
-
-interface Story {
-  by: string;
-  descendants: number;
-  id: number;
-  kids: number[];
-  score: number;
-  time: number;
-  title: string;
-  type: string;
-  url: string;
-}
-
-interface SearchResult {
-  hits: any[]; // TODO: map types
-  nbHits: number;
-  page: number;
-  nbPages: number;
-  hitsPerPage: number;
-  exhaustiveNbHits: boolean;
-  exhaustiveTypo: boolean;
-  exhaustive: {
-    nbHits: boolean;
-    typo: boolean;
-  };
-  query: string;
-  params: string;
-  processingTimeMS: number;
-  processingTimingsMS: {
-    afterFetch: {
-      total: number;
-    };
-    fetch: {
-      scanning: number;
-      total: number;
-    };
-    total: number;
-  };
-}
 
 const getStoryWithContent = async (id: number) => {
   const response = await fetch(`${algolia_base_url}/items/${id}`);
