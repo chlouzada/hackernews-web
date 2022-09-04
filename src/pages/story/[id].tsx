@@ -8,10 +8,15 @@ import { trpc } from "../../utils/trpc";
 
 const Text = ({ value }: { value?: string }) => {
   if (!value) return null;
+  const html = value
+    .replace(/<pre><code>/g, "<p>")
+    .replace(/<\/code><\/pre>/g, "</p>");
   return (
     <div
-      className="w-full text-sm md:leading-relaxed text-gray-700"
-      dangerouslySetInnerHTML={{ __html: value }}
+      className="break-words text-sm md:leading-relaxed text-gray-700"
+      dangerouslySetInnerHTML={{
+        __html: html,
+      }}
     />
   );
 };
@@ -62,12 +67,14 @@ const StoryItem = ({
     <section className="flex flex-col gap-3 bg-slate-50 rounded-md p-4">
       <div className="flex justify-between items-center">
         <h1 className="md:text-3xl font-extrabold text-gray-700">{title}</h1>
-        <Link href={url}>
-          <div>
-            <a className="hidden md:block py-2 pl-2">{url}</a>
-            <a className="md:hidden py-2 pl-2">Link</a>
-          </div>
-        </Link>
+        {url && (
+          <Link href={url}>
+            <div>
+              <a className="hidden md:block py-2 pl-2">{url}</a>
+              <a className="md:hidden py-2 pl-2">Link</a>
+            </div>
+          </Link>
+        )}
       </div>
       <Text value={text} />
       <div className="text-sm font-bold flex justify-between items-center">

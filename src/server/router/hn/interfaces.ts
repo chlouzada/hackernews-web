@@ -4,7 +4,7 @@ export interface StoryWithContent {
   created_at_i: number;
   author: string;
   title: string;
-  url: string;
+  url?: string;
   text?: string;
   points?: number;
   children: Comment[];
