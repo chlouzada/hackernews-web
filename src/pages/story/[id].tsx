@@ -72,8 +72,7 @@ const StoryItem = ({
       <Text value={text} />
       <div className="text-sm font-bold flex justify-between items-center">
         <p>
-          {" "}
-          by <span>{author}</span> - {points}
+          {author} - {points}
         </p>
         <p>{date(created_at)}</p>
       </div>

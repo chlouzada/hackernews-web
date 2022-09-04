@@ -3,11 +3,9 @@ import React from "react";
 
 export default function Header({
   hiddenSearch,
-  search,
   setSearch,
 }: {
   hiddenSearch?: true;
-  search?: string;
   setSearch?: (search: string) => void;
 }) {
   return (

@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
@@ -25,6 +25,42 @@ const Error = () => {
   );
 };
 
+const StoryItem = ({
+  id,
+  title,
+  score,
+  author,
+  createdAt,
+  comments,
+}: {
+  id: number;
+  title: string;
+  score: number;
+  author: string;
+  comments: number;
+  createdAt: string;
+}) => {
+  return (
+    <li
+      key={id}
+      className="shadow hover:scale-[1.01] duration-500 p-4 rounded-md"
+    >
+      <Link href={`/story/${id}`}>
+        <div>
+          <h2>{title}</h2>
+          <p className="text-xs">
+            {author} ({score})
+          </p>
+          <div className="flex justify-between text-sm font-bold">
+            <p className="text-sm">{comments} comments</p>
+            <p>{date(createdAt)}</p>
+          </div>
+        </div>
+      </Link>
+    </li>
+  );
+};
+
 const Home: NextPage = () => {
   const [search, setSearch] = useState<string>();
   const debounced = useDebouncedValue(search, 700);
@@ -38,16 +74,15 @@ const Home: NextPage = () => {
     if (topStoriesQuery.isLoading) return <Loading />;
     if (searchQuery.isError) return <Error />;
     return topStoriesQuery.data?.map((story) => (
-      <li key={story.id}>
-        <Link href={`/story/${story.id}`}>
-          <div>
-            <h2>{story.title}</h2>
-            <p>{story.time}</p>
-            <span>{story.score}</span>
-            <p> d{story.descendants}</p>
-          </div>
-        </Link>
-      </li>
+      <StoryItem
+        key={story.id}
+        {...{
+          ...story,
+          comments: story.descendants,
+          createdAt: new Date(story.time * 1000).toISOString(),
+          author: story.by,
+        }}
+      />
     ));
   };
 
@@ -55,16 +90,16 @@ const Home: NextPage = () => {
     if (searchQuery.isLoading) return <Loading search />;
     if (searchQuery.isError) return <Error />;
     return searchQuery.data?.hits.map((story) => (
-      <li key={story.objectID}>
-        <Link href={`/story/${story.objectID}`}>
-          <div>
-            <h2>{story.title}</h2>
-            <p>{date(story.created_at)}</p>
-            <span>{story.points}</span>
-            {/* <p> d{story.descendants}</p> */}
-          </div>
-        </Link>
-      </li>
+      <StoryItem
+        key={story.objectID}
+        {...{
+          ...story,
+          createdAt: story.created_at,
+          id: Number(story.objectID),
+          comments: story.num_comments,
+          score: story.points,
+        }}
+      />
     ));
   };
 
@@ -78,8 +113,8 @@ const Home: NextPage = () => {
 
       <Header setSearch={setSearch} />
 
-      <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
-        <ul className="text-2xl text-gray-700">
+      <main className="container mx-auto flex flex-col items-center justify-center min-h-screen py-4 md:py-8">
+        <ul className="text-2xl text-gray-700 flex flex-col gap-3">
           {debounced ? renderSearchResults() : renderTopStories()}
         </ul>
       </main>
