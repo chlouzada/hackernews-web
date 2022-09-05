@@ -33,16 +33,16 @@ const CommentItem = ({
     if (_level === -1) return;
     const n = _level % 4;
     const style = "ml-[0.1rem] mr-[0.5rem] p-[2px] rounded ";
-    if (n === 0) return style + "bg-blue-400";
-    if (n === 1) return style + "bg-green-400";
-    if (n === 2) return style + "bg-yellow-400";
-    if (n === 3) return style + "bg-red-400";
+    if (n === 0) return `${style} bg-blue-400`;
+    if (n === 1) return `${style} bg-green-400`;
+    if (n === 2) return `${style} bg-yellow-400`;
+    if (n === 3) return `${style} bg-red-400`;
   };
   const sortedChildren = children.sort((a, b) => {
     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
   });
   return (
-    <div className="flex py-1">
+    <div className="flex pt-2">
       <div className={`${color()}`} />
       <div className="flex flex-col justify-center w-full">
         <Text value={text} />
