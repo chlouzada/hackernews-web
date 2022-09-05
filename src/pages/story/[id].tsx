@@ -29,30 +29,32 @@ const CommentItem = ({
   _level = -1,
 }: Comment & { _level?: number }) => {
   if (!text) return null;
-  const subCommentsStyle = () => {
+  const color = () => {
     if (_level === -1) return;
     const n = _level % 4;
-    if (n === 0) return "pl-3 border-l-[3px] border-blue-400";
-    if (n === 1) return "pl-3 border-l-[3px] border-green-400";
-    if (n === 2) return "pl-3 border-l-[3px] border-yellow-400";
-    if (n === 3) return "pl-3 border-l-[3px] border-red-400";
+    const style = "ml-[0.1rem] mr-[0.5rem] p-[2px] rounded ";
+    if (n === 0) return style + "bg-blue-400";
+    if (n === 1) return style + "bg-green-400";
+    if (n === 2) return style + "bg-yellow-400";
+    if (n === 3) return style + "bg-red-400";
   };
   const sortedChildren = children.sort((a, b) => {
     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
   });
   return (
-    <div>
-      <div
-        className={`flex flex-col justify-center mt-2 ${subCommentsStyle()}`}
-      >
+    <div className="flex py-1">
+      <div className={`${color()}`} />
+      <div className="flex flex-col justify-center w-full">
         <Text value={text} />
-        <div className="flex justify-between text-sm text-gray-700">
+        <div className="flex justify-between ml text-sm text-gray-700">
           <p>{author}</p>
           <p>{date(created_at)}</p>
         </div>
+        {/* <div className="flex flex-col gap-4"> */}
         {sortedChildren.map((child) => (
           <CommentItem key={child.id} {...child} _level={_level + 1} />
         ))}
+        {/* </div> */}
       </div>
     </div>
   );
