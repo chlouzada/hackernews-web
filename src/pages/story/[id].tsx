@@ -1,18 +1,20 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useState } from "react";
 import Header from "../../components/Header";
 import { Comment, StoryWithContent } from "../../server/router/hn/interfaces";
 import { date } from "../../utils/date";
 import { trpc } from "../../utils/trpc";
 
-const Text = ({ value }: { value?: string }) => {
+const Text = ({ value, onClick }: { value?: string; onClick: any }) => {
   if (!value) return null;
   const html = value
     .replace(/<pre><code>/g, '<div class="mockup-code"><pre><code>')
     .replace(/<\/code><\/pre>/g, "</code></pre></div>");
   return (
     <div
+      onClick={onClick}
       className="break-words text-justify text-sm md:leading-relaxed text-gray-700"
       dangerouslySetInnerHTML={{
         __html: html,
@@ -28,6 +30,7 @@ const CommentItem = ({
   children,
   _level = -1,
 }: Comment & { _level?: number }) => {
+  const [collapsed, setCollapsed] = useState(false);
   if (!text) return null;
   const color = () => {
     if (_level === -1) return;
@@ -41,23 +44,34 @@ const CommentItem = ({
   const sortedChildren = children.sort((a, b) => {
     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
   });
-  return (
-    <div className="flex pt-2">
-      <div className={`${color()}`} />
+
+  const content = collapsed ? (
+    <div className="flex flex-col justify-center w-full">
+      <div className="flex justify-between ml text-sm text-gray-700">
+        <p>{author}</p>
+        <p>{date(created_at)}</p>
+      </div>
+      {sortedChildren.map((child) => (
+        <CommentItem key={child.id} {...child} _level={_level + 1} />
+      ))}
+    </div>
+  ) : (
+    <>
+      <div className={`mt-[0.3rem] ${color()}`} />
       <div className="flex flex-col justify-center w-full">
-        <Text value={text} />
+        <Text value={text} onClick={() => setCollapsed((c) => !c)} />
         <div className="flex justify-between ml text-sm text-gray-700">
           <p>{author}</p>
           <p>{date(created_at)}</p>
         </div>
-        {/* <div className="flex flex-col gap-4"> */}
         {sortedChildren.map((child) => (
           <CommentItem key={child.id} {...child} _level={_level + 1} />
         ))}
-        {/* </div> */}
       </div>
-    </div>
+    </>
   );
+
+  return <div className="flex pt-2">{content}</div>;
 };
 
 const StoryItem = ({
