@@ -95,7 +95,7 @@ const StoryItem = ({
           </Link>
         )}
       </div>
-      <Text value={text} />
+      <Text onClick={() => console.log("TODO:")} value={text} />
       <div className="text-sm font-bold flex justify-between items-center">
         <p>
           {author} - {points}
