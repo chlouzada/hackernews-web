@@ -43,7 +43,7 @@ const StoryItem = ({
   return (
     <li
       key={id}
-      className="shadow hover:scale-[1.01] duration-500 p-4 rounded-md"
+      className="shadow motion-safe:hover:scale-[1.01] duration-150 p-4 rounded-md cursor-pointer"
     >
       <Link href={`/story/${id}`}>
         <div>
