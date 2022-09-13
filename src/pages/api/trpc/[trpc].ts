@@ -18,6 +18,7 @@ export default createNextApiHandler({
       // cache request for 1 day + revalidate once every second
       return {
         headers: {
+          "Access-Control-Allow-Origin": "*",
           "cache-control": `s-maxage=5, stale-while-revalidate=${60}`,
         },
       };
