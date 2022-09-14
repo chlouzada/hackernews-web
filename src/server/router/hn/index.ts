@@ -24,7 +24,7 @@ const getStory = async (id: number) => {
 const topStories = async () => {
   const response = await fetch(`${fb_base_url}/topstories.json`);
   const ids = await response.json();
-  return (await Promise.all(ids.map(getStory))) as Story[];
+  return (await Promise.all(ids.splice(0,5).map(getStory))) as Story[];
 };
 
 export const hnRouter = createRouter()
