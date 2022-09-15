@@ -1,12 +1,13 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { date } from "../utils/date";
 import { trpc } from "../utils/trpc";
+import { useInView } from "react-intersection-observer";
 
 const Loading = ({ search }: { search?: true }) => {
   return (
@@ -62,10 +63,23 @@ const StoryItem = ({
 };
 
 const Home: NextPage = () => {
+  const { ref, inView } = useInView();
   const [search, setSearch] = useState<string>();
   const debounced = useDebouncedValue(search, 700);
 
-  const topStoriesQuery = trpc.useQuery(["hn.topStories"]);
+  const limit = 20;
+
+  const topStoriesQuery = trpc.useInfiniteQuery(
+    ["hn.infiniteTopStories", { limit }],
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  useEffect(() => {
+    if (inView) topStoriesQuery.fetchNextPage();
+  }, [inView]);
+
   const searchQuery = trpc.useQuery(["hn.search", { query: debounced! }], {
     enabled: !!debounced,
   });
@@ -73,17 +87,22 @@ const Home: NextPage = () => {
   const renderTopStories = () => {
     if (topStoriesQuery.isLoading) return <Loading />;
     if (searchQuery.isError) return <Error />;
-    return topStoriesQuery.data?.map((story) => (
-      <StoryItem
-        key={story.id}
-        {...{
-          ...story,
-          comments: story.descendants,
-          createdAt: new Date(story.time * 1000).toISOString(),
-          author: story.by,
-        }}
-      />
-    ));
+    return topStoriesQuery.data?.pages.map((page) =>
+      page.items.map((story, index) => (
+        <>
+          <StoryItem
+            key={story.id}
+            {...{
+              ...story,
+              comments: story.descendants,
+              createdAt: new Date(story.time * 1000).toISOString(),
+              author: story.by,
+            }}
+          />
+          {page.nextCursor && index === 10 && <div ref={ref} />}
+        </>
+      ))
+    );
   };
 
   const renderSearchResults = () => {
